@@ -123,7 +123,6 @@ class Table extends Component {
   onCheckedRadio = async obj => {
     const { _id } = obj;
     const { urlUpdateCell } = endpoint;
-
     this.setState(() => ({ fetching: true }));
     const response = await updateOne(urlUpdateCell('rows'), obj);
     this.setState(prev => ({

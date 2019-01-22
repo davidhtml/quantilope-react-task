@@ -92,8 +92,8 @@ class Row extends Component {
           <input
             key={i}
             type="radio"
-            value={`row${row._id}col${item._id}`}
-            checked={checkedRadio === `row${row._id}col${item._id}`}
+            value={`row${i}col${i}`}
+            checked={checkedRadio === `row${i}col${i}`}
             onChange={this.onRadioChange}
             className="radio-input"
           />

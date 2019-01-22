@@ -1,6 +1,6 @@
 const findNoOfImages = (rows, columns) => {
-  const imgRows = rows.filter(row => row.image !== undefined);
-  const imgCol = columns.filter(column => column.image !== undefined);
+  const imgRows = rows.filter(row => row.image !== '');
+  const imgCol = columns.filter(column => column.image !== '');
   return [...imgRows, ...imgCol];
 };
 
