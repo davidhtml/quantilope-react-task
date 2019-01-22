@@ -22,8 +22,8 @@
     "prettier": "^1.15.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build-serve": "node server/server.js",
+    "dev-start": "react-scripts start",
+    "start": "node server/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
