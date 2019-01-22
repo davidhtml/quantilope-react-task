@@ -81,23 +81,6 @@ class Table extends Component {
     }));
   };
 
-  //TODO to  be removed
-  onChangeLabel = async obj => {
-    const colsOrRows = checkIfRow(obj);
-    const {
-      [colsOrRows]: { _id },
-    } = obj;
-
-    this.setState(prev => ({
-      [colsOrRows]: prev[colsOrRows].map(item => {
-        if (item._id === _id) {
-          return { ...item, ...obj[colsOrRows] };
-        }
-        return { ...item };
-      }),
-    }));
-  };
-
   onChangeImage = async obj => {
     const colsOrRows = checkIfRow(obj);
     const { urlUploadImage } = endpoint;
@@ -202,7 +185,6 @@ class Table extends Component {
                 column={column}
                 label={column.label}
                 key={i}
-                handleChangeLabel={this.onChangeLabel}
                 handeChangeImage={this.onChangeImage}
                 handleRemove={this.onRemove}
                 handleLabelSave={this.onLabelSave}
@@ -220,7 +202,6 @@ class Table extends Component {
                 label={row.label}
                 checkedRadio={row.checked}
                 key={i}
-                handleChangeLabel={this.onChangeLabel}
                 handeChangeImage={this.onChangeImage}
                 handleRemove={this.onRemove}
                 handleCheckedRadio={this.onCheckedRadio}

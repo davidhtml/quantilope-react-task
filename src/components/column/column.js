@@ -2,24 +2,37 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { DebounceInput } from 'react-debounce-input';
 
 class Column extends Component {
-  handleChange = e => {
-    e.persist();
-    const { handleChangeLabel, column } = this.props;
-    const obj = Object.assign({}, column);
-    obj.label = e.target.value;
-    handleChangeLabel({ columns: obj, event: e });
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: '',
+    };
+  }
 
-  onHandleSave = e => {
-    e.persist();
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      const { handleLabelSave, column } = this.props;
-      const obj = Object.assign({}, column);
-      obj.label = e.target.value;
-      handleLabelSave({ columns: obj });
+  componentDidMount() {
+    const { column } = this.props;
+    this.setState({
+      value: column.label,
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    const { column } = this.props;
+    if (column !== prevProps.column) {
+      // eslint-disable-next-line
+      this.setState({
+        value: column.label,
+      });
     }
+  }
+
+  onLabelSave = debouncedVal => {
+    const { handleLabelSave, column } = this.props;
+    const obj = Object.assign({}, column, debouncedVal);
+    handleLabelSave({ columns: obj });
   };
 
   handleImage = e => {
@@ -38,6 +51,7 @@ class Column extends Component {
 
   render() {
     const { column } = this.props;
+    const { value } = this.state;
     return (
       <div className="column">
         <input type="submit" value="X" onClick={this.onRemveColumn} />
@@ -51,12 +65,17 @@ class Column extends Component {
           />
           {column.image ? <div className="img-uploaded" /> : null}
         </label>
-        <input
+        <DebounceInput
           type="text"
-          value={column.label}
-          onChange={this.handleChange}
+          value={value}
           placeholder="add.."
-          onKeyDown={this.onHandleSave}
+          onChange={e => {
+            this.setState({
+              value: e.target.value,
+            });
+            this.onLabelSave({ label: e.target.value });
+          }}
+          debounceTimeout={500}
         />
       </div>
     );
@@ -64,7 +83,6 @@ class Column extends Component {
 }
 
 Column.propTypes = {
-  handleChangeLabel: PropTypes.func.isRequired,
   handeChangeImage: PropTypes.func.isRequired,
   handleRemove: PropTypes.func.isRequired,
   handleLabelSave: PropTypes.func.isRequired,

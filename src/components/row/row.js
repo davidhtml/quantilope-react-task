@@ -29,15 +29,7 @@ class Row extends Component {
     }
   }
 
-  onLabelChange = e => {
-    e.persist();
-    const { handleChangeLabel, row } = this.props;
-    const obj = Object.assign({}, row);
-    obj.label = e.target.value;
-    handleChangeLabel({ rows: obj });
-  };
-
-  onRowSave = debouncedVal => {
+  onLabelSave = debouncedVal => {
     const { handleLabelSave, row } = this.props;
     const obj = Object.assign({}, row, debouncedVal);
     handleLabelSave({ rows: obj });
@@ -91,7 +83,7 @@ class Row extends Component {
               this.setState({
                 value: e.target.value,
               });
-              this.onRowSave({ label: e.target.value });
+              this.onLabelSave({ label: e.target.value });
             }}
             debounceTimeout={500}
           />
@@ -112,7 +104,6 @@ class Row extends Component {
 }
 
 Row.propTypes = {
-  handleChangeLabel: PropTypes.func.isRequired,
   handeChangeImage: PropTypes.func.isRequired,
   handleRemove: PropTypes.func.isRequired,
   handleCheckedRadio: PropTypes.func.isRequired,

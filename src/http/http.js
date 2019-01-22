@@ -28,17 +28,15 @@ const postNew = (url, colsOrRows) => {
   }).then(r => r.json());
 };
 
-const deleteOne = (url, body) => {
-  console.log('delete one URL', url);
-  console.log('delete one URL', body);
-  return fetch(url, {
+const deleteOne = (url, body) =>
+  fetch(url, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   }).then(r => r.json());
-};
+
 const updateOne = (url, body) =>
   fetch(url, {
     method: 'PATCH',
