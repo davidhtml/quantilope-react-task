@@ -1,5 +1,5 @@
 const baseUrl =
-  process.env.NODE_ENV === 'development'
+  process.env.NODE_ENV === 'production'
     ? 'https://mysterious-ridge-97002.herokuapp.com'
     : 'http://localhost:3001';
 const endpoint = {
