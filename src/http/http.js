@@ -15,7 +15,7 @@ const patchTableName = (url, name, tableName) =>
 const postNew = (url, colsOrRows) => {
   const body = {
     label: `${colsOrRows}`,
-    image: {},
+    image: '',
     checked: '',
   };
 

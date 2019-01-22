@@ -1,4 +1,5 @@
 const baseUrl = 'https://mysterious-ridge-97002.herokuapp.com';
+// const baseUrl = 'http://localhost:3001';
 
 const endpoint = {
   urlPacthTableName: `${baseUrl}/table1/name`,

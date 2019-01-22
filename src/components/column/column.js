@@ -89,7 +89,7 @@ Column.propTypes = {
   column: PropTypes.shape({
     label: PropTypes.string,
     _id: PropTypes.string,
-    image: PropTypes.shape({}),
+    image: PropTypes.string,
   }).isRequired,
 };
 
