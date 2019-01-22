@@ -12,6 +12,16 @@ class Column extends Component {
     handleChangeLabel({ columns: obj, event: e });
   };
 
+  onHandleSave = e => {
+    e.persist();
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      const { handleLabelSave, column } = this.props;
+      const obj = Object.assign({}, column);
+      obj.label = e.target.value;
+      handleLabelSave({ columns: obj });
+    }
+  };
+
   handleImage = e => {
     const { handeChangeImage, column } = this.props;
     if (e.target.files[0]) {
@@ -41,7 +51,13 @@ class Column extends Component {
           />
           {column.image ? <div className="img-uploaded" /> : null}
         </label>
-        <input type="text" value={column.label} onChange={this.handleChange} />
+        <input
+          type="text"
+          value={column.label}
+          onChange={this.handleChange}
+          placeholder="add.."
+          onKeyDown={this.onHandleSave}
+        />
       </div>
     );
   }
@@ -51,6 +67,7 @@ Column.propTypes = {
   handleChangeLabel: PropTypes.func.isRequired,
   handeChangeImage: PropTypes.func.isRequired,
   handleRemove: PropTypes.func.isRequired,
+  handleLabelSave: PropTypes.func.isRequired,
   column: PropTypes.shape({
     label: PropTypes.string,
     _id: PropTypes.string,

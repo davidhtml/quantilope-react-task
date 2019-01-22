@@ -9,7 +9,16 @@ class Row extends Component {
     const { handleChangeLabel, row } = this.props;
     const obj = Object.assign({}, row);
     obj.label = e.target.value;
-    handleChangeLabel({ rows: obj, event: e });
+    handleChangeLabel({ rows: obj });
+  };
+
+  onHandleSave = e => {
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      const { handleLabelSave, row } = this.props;
+      const obj = Object.assign({}, row);
+      obj.label = e.target.value;
+      handleLabelSave({ rows: obj });
+    }
   };
 
   onImageChange = e => {
@@ -50,7 +59,13 @@ class Row extends Component {
             />
             {row.image ? <div className="img-uploaded" /> : null}
           </label>
-          <input type="text" value={row.label} onChange={this.onLabelChange} />
+          <input
+            type="text"
+            value={row.label}
+            onChange={this.onLabelChange}
+            placeholder="add.."
+            onKeyDown={this.onHandleSave}
+          />
         </div>
         {col.map((item, i) => (
           <input
@@ -72,6 +87,7 @@ Row.propTypes = {
   handeChangeImage: PropTypes.func.isRequired,
   handleRemove: PropTypes.func.isRequired,
   handleCheckedRadio: PropTypes.func.isRequired,
+  handleLabelSave: PropTypes.func.isRequired,
   columnsLength: PropTypes.arrayOf(PropTypes.object).isRequired,
   checkedRadio: PropTypes.string.isRequired,
   row: PropTypes.shape({

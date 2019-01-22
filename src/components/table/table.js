@@ -24,10 +24,12 @@ class Table extends Component {
       rows: [],
       columns: [],
       tableName: [{ tableName: '' }],
+      fetching: false,
     };
   }
 
   componentDidMount() {
+    this.setState(() => ({ fetching: true }));
     const { urlGetAll } = endpoint;
     getAll(urlGetAll)
       .then(table => {
@@ -35,6 +37,7 @@ class Table extends Component {
           rows: [...prev.rows, ...table.rows],
           columns: [...prev.columns, ...table.columns],
           tableName: [...table.tableName],
+          fetching: false,
         }));
       })
       .catch(err => {
@@ -42,13 +45,51 @@ class Table extends Component {
       });
   }
 
-  onTableName = async e => {
+  onTableName = e => {
     e.persist();
-    const name = e.target.value;
-    const { urlPacthTableName } = endpoint;
-    const { tableName } = this.state;
-    const response = await patchTableName(urlPacthTableName, name, tableName);
-    this.setState(() => ({ tableName: [{ ...response.name }] }));
+    const body = { tableName: e.target.value };
+    const newObj = Object.assign({}, body);
+    this.setState(prev => ({
+      tableName: [{ ...prev.tableName[0], ...newObj }],
+    }));
+  };
+
+  onSaveTableName = async e => {
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      const { urlPacthTableName } = endpoint;
+      const { tableName } = this.state;
+      const name = e.target.value;
+
+      this.setState(() => ({ fetching: true }));
+      const response = await patchTableName(urlPacthTableName, name, tableName);
+      this.setState(prev => ({
+        tableName: [{ ...prev.tableName[0], ...response.name }],
+        fetching: false,
+      }));
+    }
+  };
+
+  onLabelSave = async obj => {
+    const colsOrRows = checkIfRow(obj);
+    const {
+      [colsOrRows]: { _id },
+    } = obj;
+    const { urlUpdateCell } = endpoint;
+
+    this.setState(() => ({ fetching: true }));
+    const response = await updateOne(
+      urlUpdateCell(colsOrRows),
+      obj[colsOrRows]
+    );
+    this.setState(prev => ({
+      [colsOrRows]: prev[colsOrRows].map(item => {
+        if (item._id === _id) {
+          return { ...item, ...response };
+        }
+        return { ...item };
+      }),
+      fetching: false,
+    }));
   };
 
   onChangeLabel = async obj => {
@@ -56,17 +97,11 @@ class Table extends Component {
     const {
       [colsOrRows]: { _id },
     } = obj;
-    const { urlUpdateCell } = endpoint;
-
-    const response = await updateOne(
-      urlUpdateCell(colsOrRows),
-      obj[colsOrRows]
-    );
 
     this.setState(prev => ({
       [colsOrRows]: prev[colsOrRows].map(item => {
         if (item._id === _id) {
-          return { ...item, ...response };
+          return { ...item, ...obj[colsOrRows] };
         }
         return { ...item };
       }),
@@ -80,6 +115,8 @@ class Table extends Component {
       [colsOrRows]: { _id },
       file,
     } = obj;
+
+    this.setState(() => ({ fetching: true }));
     const response = await uploadImage(urlUploadImage(colsOrRows), file, _id);
 
     this.setState(prev => ({
@@ -89,12 +126,15 @@ class Table extends Component {
         }
         return { ...item };
       }),
+      fetching: false,
     }));
   };
 
-  addNew = async obj => {
+  onAddNew = async obj => {
     const colsOrRows = checkIfRow(obj);
     const { urlAddNew } = endpoint;
+
+    this.setState(() => ({ fetching: true }));
     const response = await postNew(urlAddNew(colsOrRows), colsOrRows);
     this.setState(prev => ({
       [colsOrRows]: [
@@ -103,13 +143,15 @@ class Table extends Component {
           ...response,
         },
       ],
+      fetching: false,
     }));
   };
 
-  handleCheckedRadio = async obj => {
+  onCheckedRadio = async obj => {
     const { _id } = obj;
     const { urlUpdateCell } = endpoint;
 
+    this.setState(() => ({ fetching: true }));
     const response = await updateOne(urlUpdateCell('rows'), obj);
     this.setState(prev => ({
       rows: prev.rows.map(item => {
@@ -118,20 +160,23 @@ class Table extends Component {
         }
         return { ...item };
       }),
+      fetching: false,
     }));
   };
 
-  handleRemove = async obj => {
+  onRemove = async obj => {
     const colsOrRows = checkIfRow(obj);
     const { urlDeleteOne } = endpoint;
     const {
       [colsOrRows]: { _id },
     } = obj;
 
+    this.setState(() => ({ fetching: true }));
     await deleteOne(urlDeleteOne(colsOrRows), obj[colsOrRows]);
 
     this.setState(prev => ({
       [colsOrRows]: prev[colsOrRows].filter(cell => cell._id !== _id),
+      fetching: false,
     }));
   };
 
@@ -146,13 +191,20 @@ class Table extends Component {
   };
 
   render() {
-    const { rows, columns, tableName } = this.state;
+    const { rows, columns, tableName, fetching } = this.state;
+
     return (
       <div className="container">
         <div className="table">
+          {fetching && (
+            <div className="loading">
+              <img src="loader.gif" alt="" />
+            </div>
+          )}
           <TableName
             tableName={tableName[0].tableName}
             onTableName={this.onTableName}
+            onSaveTableName={this.onSaveTableName}
           />
           <div className="columns">
             {columns.map((column, i) => (
@@ -162,11 +214,12 @@ class Table extends Component {
                 key={i}
                 handleChangeLabel={this.onChangeLabel}
                 handeChangeImage={this.onChangeImage}
-                handleRemove={this.handleRemove}
+                handleRemove={this.onRemove}
+                handleLabelSave={this.onLabelSave}
               />
             ))}
             <div className="add-btn-col">
-              <AddNew addNew={this.addNew} obj={{ columns }} />
+              <AddNew addNew={this.onAddNew} obj={{ columns }} />
             </div>
           </div>
           <div className="rows">
@@ -179,12 +232,14 @@ class Table extends Component {
                 key={i}
                 handleChangeLabel={this.onChangeLabel}
                 handeChangeImage={this.onChangeImage}
-                handleRemove={this.handleRemove}
-                handleCheckedRadio={this.handleCheckedRadio}
+                handleRemove={this.onRemove}
+                handleCheckedRadio={this.onCheckedRadio}
+                handleLabelSave={this.onLabelSave}
+                fetching={fetching}
               />
             ))}
             <div className="add-btn-row">
-              <AddNew addNew={this.addNew} obj={{ rows }} />
+              <AddNew addNew={this.onAddNew} obj={{ rows }} />
             </div>
           </div>
         </div>
