@@ -2,8 +2,33 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { DebounceInput } from 'react-debounce-input';
 
 class Row extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: '',
+    };
+  }
+
+  componentDidMount() {
+    const { row } = this.props;
+    this.setState({
+      value: row.label,
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    const { row } = this.props;
+    if (row !== prevProps.row) {
+      // eslint-disable-next-line
+      this.setState({
+        value: row.label,
+      });
+    }
+  }
+
   onLabelChange = e => {
     e.persist();
     const { handleChangeLabel, row } = this.props;
@@ -12,13 +37,10 @@ class Row extends Component {
     handleChangeLabel({ rows: obj });
   };
 
-  onHandleSave = e => {
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      const { handleLabelSave, row } = this.props;
-      const obj = Object.assign({}, row);
-      obj.label = e.target.value;
-      handleLabelSave({ rows: obj });
-    }
+  onRowSave = debouncedVal => {
+    const { handleLabelSave, row } = this.props;
+    const obj = Object.assign({}, row, debouncedVal);
+    handleLabelSave({ rows: obj });
   };
 
   onImageChange = e => {
@@ -45,6 +67,8 @@ class Row extends Component {
 
   render() {
     const { row, columnsLength: col, checkedRadio } = this.props;
+    const { value } = this.state;
+
     return (
       <div className="row">
         <div className="options">
@@ -59,12 +83,17 @@ class Row extends Component {
             />
             {row.image ? <div className="img-uploaded" /> : null}
           </label>
-          <input
+          <DebounceInput
             type="text"
-            value={row.label}
-            onChange={this.onLabelChange}
+            value={value}
             placeholder="add.."
-            onKeyDown={this.onHandleSave}
+            onChange={e => {
+              this.setState({
+                value: e.target.value,
+              });
+              this.onRowSave({ label: e.target.value });
+            }}
+            debounceTimeout={500}
           />
         </div>
         {col.map((item, i) => (

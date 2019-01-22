@@ -81,6 +81,7 @@ class Table extends Component {
     }));
   };
 
+  //TODO to  be removed
   onChangeLabel = async obj => {
     const colsOrRows = checkIfRow(obj);
     const {
