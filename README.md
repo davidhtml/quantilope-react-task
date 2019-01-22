@@ -1,3 +1,6 @@
+## Live app
+https://pure-caverns-82696.herokuapp.com/
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -9,3 +12,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ### `npm run build`
 Build
+
+
+### `to connect app with local server`
+Change baseUrl in src/http/endpoints.js
