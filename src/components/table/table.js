@@ -45,28 +45,17 @@ class Table extends Component {
       });
   }
 
-  onTableName = e => {
-    e.persist();
-    const body = { tableName: e.target.value };
-    const newObj = Object.assign({}, body);
+  onSaveTableName = async value => {
+    const { urlPacthTableName } = endpoint;
+    const { tableName } = this.state;
+    const name = value.debouncedValue;
+
+    this.setState(() => ({ fetching: true }));
+    const response = await patchTableName(urlPacthTableName, name, tableName);
     this.setState(prev => ({
-      tableName: [{ ...prev.tableName[0], ...newObj }],
+      tableName: [{ ...prev.tableName[0], ...response.name }],
+      fetching: false,
     }));
-  };
-
-  onSaveTableName = async e => {
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      const { urlPacthTableName } = endpoint;
-      const { tableName } = this.state;
-      const name = e.target.value;
-
-      this.setState(() => ({ fetching: true }));
-      const response = await patchTableName(urlPacthTableName, name, tableName);
-      this.setState(prev => ({
-        tableName: [{ ...prev.tableName[0], ...response.name }],
-        fetching: false,
-      }));
-    }
   };
 
   onLabelSave = async obj => {
@@ -204,7 +193,7 @@ class Table extends Component {
           <TableName
             tableName={tableName[0].tableName}
             onTableName={this.onTableName}
-            onSaveTableName={this.onSaveTableName}
+            handleSaveTableName={this.onSaveTableName}
           />
           <div className="columns">
             {columns.map((column, i) => (
