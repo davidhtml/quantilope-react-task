@@ -50,12 +50,17 @@ class Table extends Component {
     const { tableName } = this.state;
     const name = value.debouncedValue;
 
-    this.setState(() => ({ fetching: true }));
-    const response = await patchTableName(urlPacthTableName, name, tableName);
-    this.setState(prev => ({
-      tableName: [{ ...prev.tableName[0], ...response.name }],
-      fetching: false,
-    }));
+    try {
+      this.setState(() => ({ fetching: true }));
+      const response = await patchTableName(urlPacthTableName, name, tableName);
+      this.setState(prev => ({
+        tableName: [{ ...prev.tableName[0], ...response.name }],
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while editing table name', err);
+    }
   };
 
   onLabelSave = async obj => {
@@ -65,20 +70,25 @@ class Table extends Component {
     } = obj;
     const { urlUpdateCell } = endpoint;
 
-    this.setState(() => ({ fetching: true }));
-    const response = await updateOne(
-      urlUpdateCell(colsOrRows),
-      obj[colsOrRows]
-    );
-    this.setState(prev => ({
-      [colsOrRows]: prev[colsOrRows].map(item => {
-        if (item._id === _id) {
-          return { ...item, ...response };
-        }
-        return { ...item };
-      }),
-      fetching: false,
-    }));
+    try {
+      this.setState(() => ({ fetching: true }));
+      const response = await updateOne(
+        urlUpdateCell(colsOrRows),
+        obj[colsOrRows]
+      );
+      this.setState(prev => ({
+        [colsOrRows]: prev[colsOrRows].map(item => {
+          if (item._id === _id) {
+            return { ...item, ...response };
+          }
+          return { ...item };
+        }),
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while editing row/col label', err);
+    }
   };
 
   onChangeImage = async obj => {
@@ -89,51 +99,67 @@ class Table extends Component {
       file,
     } = obj;
 
-    this.setState(() => ({ fetching: true }));
-    const response = await uploadImage(urlUploadImage(colsOrRows), file, _id);
+    try {
+      this.setState(() => ({ fetching: true }));
+      const response = await uploadImage(urlUploadImage(colsOrRows), file, _id);
 
-    this.setState(prev => ({
-      [colsOrRows]: prev[colsOrRows].map(item => {
-        if (item._id === _id) {
-          return { ...item, ...response };
-        }
-        return { ...item };
-      }),
-      fetching: false,
-    }));
+      this.setState(prev => ({
+        [colsOrRows]: prev[colsOrRows].map(item => {
+          if (item._id === _id) {
+            return { ...item, ...response };
+          }
+          return { ...item };
+        }),
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while uploading img', err);
+    }
   };
 
   onAddNew = async obj => {
     const colsOrRows = checkIfRow(obj);
     const { urlAddNew } = endpoint;
 
-    this.setState(() => ({ fetching: true }));
-    const response = await postNew(urlAddNew(colsOrRows), colsOrRows);
-    this.setState(prev => ({
-      [colsOrRows]: [
-        ...prev[colsOrRows],
-        {
-          ...response,
-        },
-      ],
-      fetching: false,
-    }));
+    try {
+      this.setState(() => ({ fetching: true }));
+      const response = await postNew(urlAddNew(colsOrRows), colsOrRows);
+      this.setState(prev => ({
+        [colsOrRows]: [
+          ...prev[colsOrRows],
+          {
+            ...response,
+          },
+        ],
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while adding new row/col', err);
+    }
   };
 
   onCheckedRadio = async obj => {
     const { _id } = obj;
     const { urlUpdateCell } = endpoint;
-    this.setState(() => ({ fetching: true }));
-    const response = await updateOne(urlUpdateCell('rows'), obj);
-    this.setState(prev => ({
-      rows: prev.rows.map(item => {
-        if (item._id === _id) {
-          return { ...item, ...response };
-        }
-        return { ...item };
-      }),
-      fetching: false,
-    }));
+
+    try {
+      this.setState(() => ({ fetching: true }));
+      const response = await updateOne(urlUpdateCell('rows'), obj);
+      this.setState(prev => ({
+        rows: prev.rows.map(item => {
+          if (item._id === _id) {
+            return { ...item, ...response };
+          }
+          return { ...item };
+        }),
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while checking radio button', err);
+    }
   };
 
   onRemove = async obj => {
@@ -143,13 +169,18 @@ class Table extends Component {
       [colsOrRows]: { _id },
     } = obj;
 
-    this.setState(() => ({ fetching: true }));
-    await deleteOne(urlDeleteOne(colsOrRows), obj[colsOrRows]);
+    try {
+      this.setState(() => ({ fetching: true }));
+      await deleteOne(urlDeleteOne(colsOrRows), obj[colsOrRows]);
 
-    this.setState(prev => ({
-      [colsOrRows]: prev[colsOrRows].filter(cell => cell._id !== _id),
-      fetching: false,
-    }));
+      this.setState(prev => ({
+        [colsOrRows]: prev[colsOrRows].filter(cell => cell._id !== _id),
+        fetching: false,
+      }));
+    } catch (err) {
+      this.setState(() => ({ fetching: false }));
+      throw new Error('error happened while deleting row/col', err);
+    }
   };
 
   numberOfImages = () => {
