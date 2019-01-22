@@ -1,7 +1,5 @@
-const baseUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'https://mysterious-ridge-97002.herokuapp.com'
-    : 'http://localhost:3001';
+const baseUrl = 'https://mysterious-ridge-97002.herokuapp.com';
+
 const endpoint = {
   urlPacthTableName: `${baseUrl}/table1/name`,
   urlGetAll: `${baseUrl}/table1/all`,
